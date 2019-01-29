@@ -99,7 +99,7 @@ class ConfounderRemoval(BaseEstimator, TransformerMixin):
         hash_file = Path(str(self.cache_dir + '/' + hash_data + '_' + hash_covs  + '_' + str(self.standardize_covariates) + '.npz'))
 
         if hash_file.is_file() and self.cache_dir:
-            X_new = np.load(hash_file)['arr_0']
+            X_new = np.load(hash_file, mmap_mode='r')['arr_0']
         else:
             # standardize covariates
             if self.standardize_covariates:

@@ -9,12 +9,13 @@ import numpy as np
 
 class SkOptOptimizer(PhotonBaseOptimizer):
 
-    def __init__(self, num_iterations: int=20):
+    def __init__(self, num_iterations: int=20, base_estimator='ET'):
         self.optimizer = None
         self.hyperparameter_list = []
         self.metric_to_optimize = ''
         self.ask = self.ask_generator()
         self.num_iterations = num_iterations
+        self.base_estimator = base_estimator
         self.maximize_metric = True
         self.constant_dictionary = {}
 
@@ -36,7 +37,7 @@ class SkOptOptimizer(PhotonBaseOptimizer):
                 skopt_param = self._convert_PHOTON_to_skopt_space(value, name)
                 if skopt_param is not None:
                     space.append(skopt_param)
-        self.optimizer = Optimizer(space, "ET")
+        self.optimizer = Optimizer(space, self.base_estimator)
         self.ask = self.ask_generator()
 
     def _convert_PHOTON_to_skopt_space(self, hyperparam: object, name: str):

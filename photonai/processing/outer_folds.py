@@ -138,15 +138,15 @@ class OuterFoldManager:
     def fit(self, X, y=None, **kwargs):
         logger.photon_system_log("")
         logger.photon_system_log(
-            "***************************************************************************************************************"
-        )
+            "********************************************************"
+        ) 
         logger.photon_system_log(
             "Outer Cross validation Fold {}".format(
                 self.cross_validaton_info.outer_folds[self.outer_fold_id].fold_nr
             )
         )
         logger.photon_system_log(
-            "***************************************************************************************************************"
+            "********************************************************"
         )
 
         self._prepare_data(X, y, **kwargs)

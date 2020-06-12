@@ -9,13 +9,13 @@ from scipy.stats import spearmanr
 from photonai.photonlogger.logger import logger
 
 from sklearn.metrics import accuracy_score
-from photonai.errors import raise_PhotonaiError
+from photonai.errors import raise_PhotonaiError, PhotonaiError
 
 
 class Scorer(object):
     """
     Transforms a string literal into an callable instance of a particular metric
-    BHC 0.1 - support cluster scoring by add clustering scores and type
+    BHC 2.0 - support cluster scoring by"_estimator_type""_estimator_type" add clustering scores and type
             - added METRIC_METADATA dictionary
             - added ML_TYPES = ["Classification", "Regression", "Clustering"]
             - added METRIC_<>ID Postion index of metric metadata list
@@ -23,12 +23,15 @@ class Scorer(object):
             - added SCORE_SIGN
 
     """
+    ESTIMATOR = "_estimator_type"
+    ESTIMATOR_PREDICT = 'predict'
 
     ELEMENT_TYPES = ["Transformer", "Estimator"]
     TRANID = 0
     ESTID = 1
+    ELEMENT_TYPES_OUT_OF_BOUNDS = 2
 
-    ML_TYPES = ["classifier", "Regression", "clusterer"]
+    ML_TYPES = ["classifier", "regression", "clusterer"]
     CLSFID = 0
     REGRID = 1
     CLSTID = 2
@@ -242,19 +245,27 @@ class Scorer(object):
     for m in ML_METRIC_METADATA.keys():
         METRIC_METADATA.update(ML_METRIC_METADATA[m])
 
-    # 1.1
+    # 2.0
     @staticmethod
-    def is_element_type(element_type: str) -> bool:
+    def is_element_type(element_type: str) -> Union[bool, PhotonaiError]:
         """
-        :raises
-        if not known machine_learning_type
 
-        :param machine_learning_type
-        :return: True
+        Parameters
+        ----------
+        element_type
+
+        Returns
+        -------
+        True - if element_type is one of Scorer.ELEMENT_TYPES
+
+        Raises
+        -------
+        PhotonaiError
+
         """
+
         if element_type in Scorer.ELEMENT_TYPES:
             return True
-
 
         raise_PhotonaiError(
             "Specify valid element_type:{} of [{}]".format(
@@ -263,7 +274,7 @@ class Scorer(object):
         )
 
     @staticmethod
-    def is_metric(metric: str) -> bool:
+    def is_metric(metric: str) -> Union[bool, PhotonaiError]:
         """
         Raises
         --------
@@ -282,6 +293,85 @@ class Scorer(object):
 
         raise_PhotonaiError(
             "Specify valid ml_type:{} of [{}]".format(metric, Scorer.METRIC_METADATA)
+        )
+
+    # 2.0
+    @staticmethod
+    def is_estimator(element_type: str) -> Union[bool, PhotonaiError]:
+        """
+
+        Parameters
+        ----------
+        element_type
+
+        Returns
+        -------
+        True - if element_type is one of Scorer.ELEMENT_TYPES
+
+        Raises
+        -------
+        PhotonaiError
+
+        """
+
+        if hasattr(element_type, Scorer.ESTIMATOR):
+            return True
+
+        raise_PhotonaiError(
+            "Specify valid element_type:{} of [{}]".format(
+                element_type, Scorer.ELEMENT_TYPES
+            )
+        )
+
+    # 2.0
+    @staticmethod
+    def is_estimator_predict(estimator: str) -> Union[bool, PhotonaiError]:
+        """
+
+        Parameters
+        ----------
+        element_type
+
+        Returns
+        -------
+        True - if element_type is one of Scorer.ELEMENT_TYPES
+
+        Raises
+        -------
+        PhotonaiError
+
+        """
+        if hasattr(estimator, Scorer.ESTIMATOR_PREDICT):
+            return True
+
+        raise_PhotonaiError(
+            "Estimator does not implement predict() method: {}]".format(estimator)
+        )
+
+    # 2.0
+    @staticmethod
+    def is_estimator_not_predict(element_type: str) -> Union[bool, PhotonaiError]:
+        """
+
+        Parameters
+        ----------
+        element_type
+
+        Returns
+        -------
+        True - if element_type is one of Scorer.ELEMENT_TYPES
+
+        Raises
+        -------
+        PhotonaiError
+
+        """
+        if not hasattr(element_type, Scorer.ESTIMATOR_PREDICT):
+            return True
+
+        raise_PhotonaiError(
+            "Element has predict() method but does not specify whether it is an estimator,\
+             Remember to inherit from <estimator>Mixin."
         )
 
     def metric_metadata(
@@ -318,19 +408,27 @@ class Scorer(object):
         )
 
     @staticmethod
-    def is_machine_learning_type(ml_type: str) -> bool:
+    def is_machine_learning_type(ml_type: str) -> Union[bool,PhotonaiError]:
         """
-        :raises
+
+        Parameters
+        ----------
+        ml_type
+
+        Returns
+        -------
+        True or PhotonaiError
+
+        Raises
+        ------
         if not known machine_learning_type
 
-        :param machine_learning_type
-        :return: True
         """
         if ml_type in Scorer.ML_TYPES:
             return True
 
         raise_PhotonaiError(
-            "Specify valid ml_type:{} of [{}]".format(ml_type, Scorer.ML_TYPES)
+            "Specify valid ml_type. invalid :{} of supported: [{}]".format(ml_type, Scorer.ML_TYPES)
         )
 
     # 1.1

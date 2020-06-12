@@ -14,7 +14,7 @@ registry.activate()
 
 # registry.list_available_elements()
 
-print(registry.info("RandomForestClassifier", verbose = True))
+print(registry.info("SmoothImages", verbose = True))
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import KFold
@@ -28,22 +28,6 @@ X, y = load_breast_cancer(True)
 # DESIGN YOUR PIPELINE
 settings = OutputSettings(project_folder="./tmp/")
 
-# my_pipe = Hyperpipe(
-#     "batching",
-#     optimizer="sk_opt",
-#     #                    optimizer_params={'n_configurations': 25},
-#     metrics=["ARI", "MI", "HCV", "FM"],
-#     best_config_metric="ARI",
-#     outer_cv=KFold(n_splits=2),
-#     inner_cv=KFold(n_splits=10),
-#     verbosity=1,
-#     output_settings=settings,
-# )
-#
-#
-# my_pipe += PipelineElement(
-#     "KMeans", hyperparameters={"n_clusters": IntegerRange(2, 12)}, random_state=777
-# )
 
 my_pipe = Hyperpipe('batching',
                     optimizer='sk_opt',
@@ -56,6 +40,8 @@ my_pipe = Hyperpipe('batching',
                     verbosity=1,
                     output_settings=settings)
 
+# ADD ELEMENTS TO YOUR PIPELINE
+my_pipe += PipelineElement("StandardScaler")
 
 my_pipe += PipelineElement('RandomForestClassifier', hyperparameters={
                                                     'n_estimators': IntegerRange(2, 1999),
@@ -65,3 +51,8 @@ my_pipe += PipelineElement('RandomForestClassifier', hyperparameters={
 my_pipe.fit(X, y)
 
 debug = True
+
+####        # ====================== Data ===========================
+#    self.data = Hyperpipe.Data()
+# self.results = None
+#self.best_config = None

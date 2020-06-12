@@ -3,7 +3,7 @@ numpy
 matplotlib
 progressbar2
 Pillow
-scikit-learn
+scikit-learn==0.22.0
 keras
 nilearn==0.5.0
 pandas
@@ -19,15 +19,16 @@ statsmodels
 flask
 prettytable
 seaborn
+hypertools
 joblib
 dask
 distributed
 scikit-optimize
 scikit-image
 pytest
-photonai
 pixiedust
 pylint
+clusim
 
 # bcolz
 # fabolas

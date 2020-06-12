@@ -83,6 +83,10 @@ class PhotonRegistry:
         "PhotonNeuro",
     ]
 
+    PhotonCoreID: ClassVar[int] = 0
+    PhotonClusterID: ClassVar[int] = 1
+    PhotonNeuroID: ClassVar[int] = 2
+
     EM_PKG_ID: ClassVar[int] = 0
     EM_SK_TYPE_ID: ClassVar[int] = 1
     EMD_OUT_OF_BOUNDS: ClassVar[int] = 2
@@ -186,9 +190,7 @@ class PhotonRegistry:
             )
         else:
             raise_PhotonaiError(
-                "Element: {} of {} not found ".format(
-                    name, list(element_metadata.keys())
-                )
+                "Element: {} of {} not found ".format(element_name,element_metadata.keys())
             )
 
     @staticmethod
@@ -207,18 +209,12 @@ class PhotonRegistry:
         """
         if photon_package == []:
             photon_package = PhotonRegistry.PHOTON_REGISTRIES
-        element_metadata = dict()
 
+        element_metadata = dict()
         for package in photon_package:
-            #            element_metadata, _ = ElementDictionary.load_json(package)
             element_metadata.update(PhotonRegistry.load_json(package))
 
         return element_metadata
-
-        #     for key in element_metadata:
-        #         class_path, class_name = os.path.splitext(element_metadata[key][0])
-        #         class_info[key] = class_path, class_name[1:]
-        # return class_info
 
     def _load_custom_folder(self, custom_elements_folder):
         self.custom_elements_folder, self.custom_elements_file = self._check_custom_folder(
@@ -740,19 +736,6 @@ class PipelineElement(BaseEstimator):
         if base_element is None:
             if name in element_metadata:
                 try:
-
-                    #            desired_class_home. - = element_metadata(name)
-                    #            desired_class_name = name
-                    #            desired_class = getattr(imported_module, desired_class_name)
-                    #            self.base_element = desired_class(**kwargs)
-                    # desired_class_info = PipelineElement.ELEMENT_DICTIONARY[name]
-                    # desired_class_home = desired_class_info[0]
-                    # desired_class_name = name
-                    #
-                    # imported_module = __import__(
-                    #     desired_class_home, globals(), locals(), desired_class_name, 0
-                    # )
-                    #                    imported_module = importlib.import_module(desired_class_home)
                     element_name, element_pkg, element_imported_module, _ = \
                         PhotonRegistry.get_element_metadata(
                             name, element_metadata
@@ -877,27 +860,13 @@ class PipelineElement(BaseEstimator):
 
     @property
     def _estimator_type(self):
-        if hasattr(self.base_element, "_estimator_type"):
-            est_type = getattr(self.base_element, "_estimator_type")
-            if est_type not in Scorer.ML_TYPES:
-                raise NotImplementedError(
-                    "Currently, we only support {}. Is {}.".format(
-                        Scorer.ML_TYPES, est_type
-                    )
-                )
-            if not hasattr(self.base_element, "predict"):
-                raise NotImplementedError(
-                    "Estimator does not implement predict() method."
-                )
+        if Scorer.is_estimator(self.base_element):
+            est_type = getattr(self.base_element, Scorer.ESTIMATOR)
+            if Scorer.is_machine_learning_type(est_type): pass
+            if Scorer.is_estimator_predict(self.base_element): pass
             return est_type
         else:
-            if hasattr(self.base_element, "predict"):
-                raise NotImplementedError(
-                    "Element has predict() method but does not specify whether it is a regressor "
-                    "or classifier. Remember to inherit from ClassifierMixin or RegressorMixin."
-                )
-            else:
-                return None
+            if Scorer.is_estimator_not_predict(self.base_element): return None
 
     # this is only here because everything inherits from PipelineElement.
     def __iadd__(self, pipe_element):

@@ -1,1 +1,5 @@
-{"KMeans": ["sklearn.cluster.KMeans", "Estimator"]}
+{
+    "KMeans":   ["sklearn.cluster.KMeans", "Estimator"],
+    "KMedoids": ["sklearn_extra.cluster.KMedoids", "Estimator"],
+    "DBSCAN":   ["sklearn.cluster.DBSCAN","Estimator"]
+}

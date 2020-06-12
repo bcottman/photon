@@ -11,7 +11,7 @@ import traceback
 import zipfile
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Callable
+from typing import Dict
 from copy import deepcopy
 
 import dask
@@ -22,6 +22,7 @@ from dask.distributed import Client
 from sklearn.base import BaseEstimator
 from sklearn.dummy import DummyClassifier, DummyRegressor
 from sklearn.externals import joblib
+
 from sklearn.model_selection._split import BaseCrossValidator
 from sklearn.model_selection import KFold
 
@@ -320,8 +321,6 @@ class Hyperpipe(BaseEstimator):
                             verbose=2)
 
    """
-
-
 
     def __init__(
         self,
@@ -1061,7 +1060,9 @@ class Hyperpipe(BaseEstimator):
         estimation_type = getattr(self.elements[-1], "_estimator_type")
         if estimation_type is None:
             raise_PhotonaiError(
-                "Last element in Hyperpipe should be an estimator, was".format(estimation_type)
+                "Last element in Hyperpipe should be an estimator, was".format(
+                    estimation_type
+                )
             )
         else:
             return estimation_type

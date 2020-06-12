@@ -176,6 +176,7 @@ class PhotonPipeline(_BaseComposition):
             if self.random_state:
                 self._final_estimator.random_state = self.random_state
             self._final_estimator.fit(X, y, **kwargs)
+            #todo after fit final_estimator actions by estimtor go
             n = PhotonDataHelper.find_n(X)
             fit_duration = (datetime.datetime.now() - fit_start_time).total_seconds()
             self.time_monitor["fit"].append((self.elements[-1][0], fit_duration, n))
